@@ -12,40 +12,42 @@ import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import cz.vutbr.fit.xkarpi06.sim.input.load.ProjectFiles;
+import cz.vutbr.fit.xkarpi06.sim.model.Constants;
 import cz.vutbr.fit.xkarpi06.sim.output.MyLog;
 import cz.vutbr.fit.xkarpi06.sim.controller.MyInputProcessor;
 import cz.vutbr.fit.xkarpi06.sim.model.Simulation;
 import cz.vutbr.fit.xkarpi06.sim.model.Trajectory3D;
 
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 /**
- * Takes care of the view part, periodically renders scene
+ * Takes care of whole 3D scene with Moon, ship and trajectory
  * @author xkarpi06
  * created: 16-04-2020, xkarpi06
  * updated:
  */
 public class MoonScene implements ApplicationListener {
 
-    public final float MOON_RADIUS = 1738100f;
-
     /** Logger instance */
     private static final Logger LOGGER = MyLog.getLogger( MoonScene.class.getName() );
 
     /** Camera variables */
     private PerspectiveCamera cam;
-    private CameraInputController camController;
     private Viewport viewport;
     public float SCENE_SCALE;  // 1 for everything in meters, 0.001 for everything in kilometers
+    private Vector3 CAMERA_DEFAULT = new Vector3(0, 0, 28f);
+    private Vector3 CAMERA_DEFAULT_LOOK_AT = new Vector3(0, 0, 0);
+
+    /** Controllers */
+    private UserInterface userInterface;
+    private CameraInputController camController;
+    private MyInputProcessor myInputProcessor;
 
     /** rendering variables */
     private ModelBatch modelBatch;
@@ -69,9 +71,6 @@ public class MoonScene implements ApplicationListener {
     private Trajectory3D trajectory;
     private Simulation sim;
 
-    /** User interface */
-    private UserInterface userInterface;
-
     /**
      * Constructor
      * @param trajectory assumed not null
@@ -81,6 +80,8 @@ public class MoonScene implements ApplicationListener {
         this.trajectory = trajectory;
         this.sim = new Simulation(this, trajectory);
         this.SCENE_SCALE = sceneScale;
+        CAMERA_DEFAULT.scl(SCENE_SCALE);
+        CAMERA_DEFAULT_LOOK_AT.scl(SCENE_SCALE);
     }
 
     /**
@@ -90,7 +91,6 @@ public class MoonScene implements ApplicationListener {
     public void create () {
         initializeRenderVariables();
         initializeCamera();
-        userInterface = new UserInterface(sim);
         initializeControllers();
         createModels();
 //        initializeScene();
@@ -109,6 +109,7 @@ public class MoonScene implements ApplicationListener {
         } else {
             clearScreen();
             updateShipPosition();
+            processUserInput();
             camController.update(); // update camera
             renderScene();
             userInterface.render();
@@ -144,30 +145,39 @@ public class MoonScene implements ApplicationListener {
         modelBatch = new ModelBatch();
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.2f, -0.5f, -1f));
+//        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
     }
 
     private void initializeCamera() {
-//        System.out.println("W:" + Gdx.graphics.getWidth() + ", H:" +  Gdx.graphics.getHeight());
         cam = new PerspectiveCamera();
-//        cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        cam.position.set(0, 0, 7f * SCENE_SCALE);
-        cam.lookAt(0,0,0);
-        cam.near = 1f * SCENE_SCALE;
-        cam.far = 3000000f * SCENE_SCALE;
-        cam.update();
+        resetCamera();
         viewport = new ExtendViewport(960,540, cam);
     }
 
+    /**
+     * Resets camera to original position and direction
+     */
+    public void resetCamera() {
+        cam.position.set(CAMERA_DEFAULT);
+        cam.lookAt(CAMERA_DEFAULT_LOOK_AT);
+        cam.up.set(Vector3.Y);
+        cam.near = 1f * SCENE_SCALE;
+        cam.far = 2*Constants.MOON_RADIUS * SCENE_SCALE;
+        cam.update();
+    }
+
     private void initializeControllers() {
+        userInterface = new UserInterface(sim, this);
         camController = new CameraInputController(cam);
         camController.scrollFactor *= SCENE_SCALE;
+        myInputProcessor = new MyInputProcessor(sim);
 //        camController.translateUnits *= SCENE_SCALE;
 //        camController.pinchZoomFactor /= SCENE_SCALE;
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(userInterface.getStage());
         inputMultiplexer.addProcessor(camController);
-        inputMultiplexer.addProcessor(new MyInputProcessor(sim));
+        inputMultiplexer.addProcessor(myInputProcessor);
         Gdx.input.setInputProcessor(inputMultiplexer);
     }
 
@@ -178,7 +188,7 @@ public class MoonScene implements ApplicationListener {
     }
 
     private void createMoonModel() {
-        final float MOONMODEL_RADIUS = MOON_RADIUS * SCENE_SCALE;
+        final float MOONMODEL_RADIUS = Constants.MOON_RADIUS * SCENE_SCALE;
         ModelBuilder modelBuilder = new ModelBuilder();
         moonModel = modelBuilder.createSphere(2* MOONMODEL_RADIUS, 2* MOONMODEL_RADIUS, 2* MOONMODEL_RADIUS,
                 120, 120, new Material(ColorAttribute.createDiffuse(Color.GRAY)),
@@ -243,6 +253,14 @@ public class MoonScene implements ApplicationListener {
     private void updateShipPosition() {
         if (sim.isRunning()) {
             sim.updateShipPosition();
+        }
+    }
+
+    private void processUserInput() {
+        if (myInputProcessor.leftArrowPressed) {
+            sim.setShipPosition(sim.getPosition() - 0.0001f);
+        } else if (myInputProcessor.rightArrowPressed) {
+            sim.setShipPosition(sim.getPosition() + 0.0001f);
         }
     }
 

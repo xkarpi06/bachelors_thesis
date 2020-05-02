@@ -52,10 +52,8 @@ public class Simulation {
         if (currentPosition == POS_MIN || currentPosition == POS_MAX) {
             stop();
         }
-//        System.out.println(currentPosition);
         moonScene.updateScene(trajectory.vertexAt(previousPosition), trajectory.vertexAt(currentPosition));
         moonScene.updateShipPitch(trajectory.pitchAt(previousPosition), trajectory.pitchAt(currentPosition));
-//        moonScene.updateScene(trajectory.vertexAt(previousPosition), trajectory.vertexAt(currentPosition), trajectory.attitudeAt(currentPosition));
     }
 
     /**
@@ -154,7 +152,7 @@ public class Simulation {
      */
     public float getAltitude() {
         Vector3 pos = trajectory.vertexAt(currentPosition);
-        return (((float) Math.sqrt(pos.x * pos.x + pos.y * pos.y)) - moonScene.MOON_RADIUS * moonScene.SCENE_SCALE)/moonScene.SCENE_SCALE;
+        return (((float) Math.sqrt(pos.x * pos.x + pos.y * pos.y)) - Constants.MOON_RADIUS * moonScene.SCENE_SCALE)/moonScene.SCENE_SCALE;
     }
 
     /**
@@ -162,7 +160,7 @@ public class Simulation {
      * @return downrange distance from landing site in meters
      */
     public float getDownrangeDistance() {
-        return 5000000f;
+        return trajectory.downrangeDistFromTargetAt(currentPosition);
     }
 
     /**

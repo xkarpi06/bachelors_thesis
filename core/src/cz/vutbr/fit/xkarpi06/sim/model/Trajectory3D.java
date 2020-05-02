@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Bezier;
 import com.badlogic.gdx.math.Vector3;
+import com.sun.org.apache.bcel.internal.Const;
 import cz.vutbr.fit.xkarpi06.sim.output.MyLog;
 
 import java.util.*;
@@ -361,6 +362,30 @@ public class Trajectory3D {
             return valueBefore + (valueAfter - valueBefore) * decimalpartOfIndex;
         } else if (position == 1) {
             return array[array.length - 1];
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Computes distance across surface of Moon between current point and finish in meters
+     * @param position position in trajectory from 0 to 1
+     * @return 0 if position is invalid
+     */
+    public float downrangeDistFromTargetAt(float position) {
+        Vector3 target = controlVertices[controlVertices.length-1];
+        Vector3 current = vertexAt(position);
+        if (current != null) {
+            float thetaTarget = (float)Math.atan2(target.y, target.x);
+            float thetaCurrent = (float)Math.atan2(current.y, current.x);
+            if (thetaTarget < 0) thetaTarget += 2*Math.PI;
+            if (thetaCurrent < 0) thetaCurrent += 2*Math.PI;
+
+//            if (thetaTarget > thetaCurrent) {
+                return Constants.MOON_RADIUS * Math.abs(thetaTarget - thetaCurrent);
+//            } else {
+//                return Constants.MOON_RADIUS * (thetaCurrent - thetaTarget);
+//            }
         } else {
             return 0;
         }

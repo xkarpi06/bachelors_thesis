@@ -20,6 +20,7 @@ public class UserInterface {
 
     // model
     private Simulation sim;
+    private MoonScene ms;
 
     // disposables
     private Stage stage;
@@ -49,6 +50,8 @@ public class UserInterface {
     private TextButton minusButton;
     private TextButton plusButton;
 
+    private TextButton resetCamButton;
+
     // other variables
     private boolean simWasRunningBeforeSliderWasDragged = true;
     DateTimeFormatter elapsedTimeFormat = DateTimeFormatter.ofPattern("H:mm:ss");
@@ -57,27 +60,43 @@ public class UserInterface {
      * Constructor
      * @param sim Simulation for setting up UI actions
      */
-    public UserInterface(Simulation sim) {
+    public UserInterface(Simulation sim, MoonScene moonScene) {
         this.sim = sim;
+        this.ms = moonScene;
         stage = new Stage();
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        // main table
-        Table table = new Table();
-        table.setFillParent(true);
-        table.align(Align.topLeft);
+        final float EDGE_PADDING = 5f;
 
-        stage.addActor(table);
+        // aligning tables
+        Table topLeftAlignment = new Table();
+        topLeftAlignment.setFillParent(true);
+        topLeftAlignment.align(Align.topLeft);
 
+        Table bottomLeftAlignment = new Table();
+        bottomLeftAlignment.setFillParent(true);
+        bottomLeftAlignment.align(Align.bottomLeft);
+
+        Table topRightAlignment = new Table();
+        topRightAlignment.setFillParent(true);
+        topRightAlignment.align(Align.topRight);
+
+        stage.addActor(topLeftAlignment);
+        stage.addActor(bottomLeftAlignment);
+        stage.addActor(topRightAlignment);
+
+        // label style for labels
         Label.LabelStyle labelStyle = createLabelStyle();
 
         Table stateVariables = createStateVarTable(labelStyle);
-        table.add(stateVariables).padLeft(5f).padTop(5f);
+        topLeftAlignment.add(stateVariables).pad(EDGE_PADDING);
 
         Table simControls = createSimControlsTable(labelStyle);
-        table.add(simControls).top().padLeft(20f).padTop(5f);
+        bottomLeftAlignment.add(simControls).pad(EDGE_PADDING);
 
-//        table.setDebug(true);   // TODO
+        createResetCamButton();
+        topRightAlignment.add(resetCamButton).pad(EDGE_PADDING);
+
 //        stateVariables.setDebug(true);
 //        simControls.setDebug(true);
     }
@@ -85,16 +104,17 @@ public class UserInterface {
     public void render () {
         // update state labels
         altitudeLabel.setText(String.format("Altitude: %.0f m", sim.getAltitude()));
-        distanceLabel.setText(String.format("Distance: %.1f km", sim.getDownrangeDistance()/1000f));
+        distanceLabel.setText(String.format("Dist-rem: %.1f km", sim.getDownrangeDistance()/1000f));
         pitchLabel.setText(String.format("Pitch: %.1f deg", sim.getPitch()));
-        elapsedTimeLabel.setText(String.format("Elapsed time: %s", LocalTime.of(0,0).plus(sim.getElapsedTime()).format(elapsedTimeFormat)));
-        massLabel.setText(String.format("Mass: %.0f kg", sim.getMass()));
-        verticalVelLabel.setText(String.format("v(vertical): %.1f m/s", sim.getVerticalVelocity()));
-        horizontalVelLabel.setText(String.format("v(horizontal): %.1f m/s", sim.getHorizontalVelocity()));
+        massLabel.setText(String.format("Mass: %.1f kg", sim.getMass()));
+        verticalVelLabel.setText(String.format("V-vert: %.1f m/s", sim.getVerticalVelocity()));
+        horizontalVelLabel.setText(String.format("V-horiz: %.1f m/s", sim.getHorizontalVelocity()));
 
         // update pause button
         String pauseButtonText = sim.isRunning() ? "Pause" : "Play";
         pauseButton.setText(pauseButtonText);
+
+        elapsedTimeLabel.setText(LocalTime.of(0,0).plus(sim.getElapsedTime()).format(elapsedTimeFormat));
 
         // update slider
         slider.setValue(sim.getPosition());
@@ -126,8 +146,8 @@ public class UserInterface {
         return stage;
     }
 
-
     // Helper methods --v
+
     private Label.LabelStyle createLabelStyle() {
         // set label style
         font = skin.getFont("default-font");
@@ -136,26 +156,24 @@ public class UserInterface {
         labelStyle.font = font;
         return labelStyle;
     }
-
     private Table createStateVarTable(Label.LabelStyle labelStyle) {
-        altitudeLabel = new Label("Altitude: 210000 m", labelStyle);
-        distanceLabel = new Label("Distance: 5000 km", labelStyle);
-        pitchLabel = new Label("Pitch: -90 deg", labelStyle);
-        elapsedTimeLabel = new Label("Elapsed time: 0:00", labelStyle);
-        massLabel = new Label("Mass: 200 kg", labelStyle);
-        verticalVelLabel = new Label("v(vertical): 2000 m/s", labelStyle);
-        horizontalVelLabel = new Label("v(horizontal): 3000 m/s", labelStyle);
+        altitudeLabel = new Label("", labelStyle);
+        distanceLabel = new Label("", labelStyle);
+        pitchLabel = new Label("", labelStyle);
+
+        massLabel = new Label("", labelStyle);
+        verticalVelLabel = new Label("", labelStyle);
+        horizontalVelLabel = new Label("", labelStyle);
 
         Table stateVariables = new Table();
 
-        stateVariables.columnDefaults(0).left().minWidth(125);
+        stateVariables.columnDefaults(0).left();
+//        stateVariables.columnDefaults(0).left().minWidth(125);
         stateVariables.add(altitudeLabel);
         stateVariables.row();
         stateVariables.add(distanceLabel);
         stateVariables.row();
         stateVariables.add(pitchLabel);
-        stateVariables.row();
-        stateVariables.add(elapsedTimeLabel);
         stateVariables.row();
         stateVariables.add(massLabel);
         stateVariables.row();
@@ -178,14 +196,17 @@ public class UserInterface {
         createReverseButton();
         simControls.add(reverseButton);
 
+        elapsedTimeLabel = new Label("", labelStyle);
+        simControls.add(elapsedTimeLabel).minWidth(43);
+
         createSlider();
-        simControls.add(slider).padTop(TEXT_PAD);
+        simControls.add(slider).padBottom(TEXT_PAD).minWidth(362);
 
         Label speedLabel = new Label("speed:", labelStyle);
-        simControls.add(speedLabel).padTop(TEXT_PAD);
+        simControls.add(speedLabel).padBottom(TEXT_PAD);
 
         speedValueLabel = new Label("1x", labelStyle);
-        simControls.add(speedValueLabel).left().padTop(TEXT_PAD).minWidth(28);
+        simControls.add(speedValueLabel).left().padBottom(TEXT_PAD).minWidth(28);
 
         createMinusButton();
         simControls.add(minusButton);
@@ -221,7 +242,7 @@ public class UserInterface {
     }
 
     private void createSlider() {
-        slider = new Slider(0, 1, 0.001f, false, skin);
+        slider = new Slider(0, 1, 0.0001f, false, skin);
         slider.addListener(new DragListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -260,6 +281,16 @@ public class UserInterface {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 sim.speedUp();
+            }
+        });
+    }
+
+    private void createResetCamButton() {
+        resetCamButton = new TextButton("Reset camera", skin);
+        resetCamButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ms.resetCamera();
             }
         });
     }
