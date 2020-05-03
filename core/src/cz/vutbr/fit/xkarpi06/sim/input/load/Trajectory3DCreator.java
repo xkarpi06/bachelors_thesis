@@ -10,10 +10,10 @@ public class Trajectory3DCreator {
 
     public static Trajectory3D create() {
 
-        float scale = 10000f;
+        float scale = 100000f;
 //        float scale = 4000000f;
 //        Vector3 start = new Vector3(0, 0, 0);
-        Vector3 start = new Vector3(1948100f, 0, 0);
+        Vector3 start = new Vector3(1738100f, 0, 0);
 //        Vector3 start = new Vector3(1948100f, 0, 0);
         Vector3[] points = new Vector3[]{
                 new Vector3(0,0,0).add(start),
@@ -36,7 +36,7 @@ public class Trajectory3DCreator {
         float ts = 2f;
         float[] times = new float[]{0*ts, 2f*ts, 4f*ts, 5f*ts, 8f*ts, 10f*ts};
 
-        return Trajectory3D.create(points, times, 0);
+        return Trajectory3D.create(points, times, 100);
     }
 
 }

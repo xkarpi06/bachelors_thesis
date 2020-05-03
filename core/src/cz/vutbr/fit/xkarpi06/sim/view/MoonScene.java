@@ -40,9 +40,9 @@ public class MoonScene implements ApplicationListener {
     /** Camera variables */
     private PerspectiveCamera cam;
     private Viewport viewport;
-    public float SCENE_SCALE;  // 1 for everything in meters, 0.001 for everything in kilometers
-    private Vector3 CAMERA_DEFAULT = new Vector3(0, 0, 28f);
-    private Vector3 CAMERA_DEFAULT_LOOK_AT = new Vector3(0, 0, 0);
+    public float SCENE_SCALE = 0.001f;  // 1 for everything in meters, 0.001 for everything in kilometers
+    private Vector3 CAMERA_DEFAULT = new Vector3(0, 0, 20f).scl(SCENE_SCALE);
+    private Vector3 CAMERA_DEFAULT_LOOK_AT = new Vector3(0, 0, 0).scl(SCENE_SCALE);
 
     /** Controllers */
     private UserInterface userInterface;
@@ -74,14 +74,10 @@ public class MoonScene implements ApplicationListener {
     /**
      * Constructor
      * @param trajectory assumed not null
-     * @param sceneScale scale of scene, default 1 for units in meters
      */
-    public MoonScene(Trajectory3D trajectory, float sceneScale) {
+    public MoonScene(Trajectory3D trajectory) {
         this.trajectory = trajectory;
         this.sim = new Simulation(this, trajectory);
-        this.SCENE_SCALE = sceneScale;
-        CAMERA_DEFAULT.scl(SCENE_SCALE);
-        CAMERA_DEFAULT_LOOK_AT.scl(SCENE_SCALE);
     }
 
     /**
@@ -121,7 +117,7 @@ public class MoonScene implements ApplicationListener {
         modelBatch.dispose();
         assets.dispose();
 //        shipModel.dispose();  // shipModel is disposed with assets
-        moonModel.dispose();
+//        moonModel.dispose();
         trajectoryModel.dispose();
         userInterface.dispose();
     }
@@ -145,12 +141,14 @@ public class MoonScene implements ApplicationListener {
         modelBatch = new ModelBatch();
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -0.2f, -0.5f, -1f));
-//        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 1f, -0.5f, -0.5f)); // slightly from above
+//        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f)); // orig
     }
 
     private void initializeCamera() {
         cam = new PerspectiveCamera();
+//        cam = new PerspectiveCamera(67f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         resetCamera();
         viewport = new ExtendViewport(960,540, cam);
     }
@@ -162,7 +160,7 @@ public class MoonScene implements ApplicationListener {
         cam.position.set(CAMERA_DEFAULT);
         cam.lookAt(CAMERA_DEFAULT_LOOK_AT);
         cam.up.set(Vector3.Y);
-        cam.near = 1f * SCENE_SCALE;
+        cam.near = 0.1f * SCENE_SCALE;
         cam.far = 2*Constants.MOON_RADIUS * SCENE_SCALE;
         cam.update();
     }
@@ -172,8 +170,6 @@ public class MoonScene implements ApplicationListener {
         camController = new CameraInputController(cam);
         camController.scrollFactor *= SCENE_SCALE;
         myInputProcessor = new MyInputProcessor(sim);
-//        camController.translateUnits *= SCENE_SCALE;
-//        camController.pinchZoomFactor /= SCENE_SCALE;
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(userInterface.getStage());
         inputMultiplexer.addProcessor(camController);
@@ -182,22 +178,24 @@ public class MoonScene implements ApplicationListener {
     }
 
     private void createModels() {
+        assets = new AssetManager();
         createMoonModel();
         createShipModel();
         createTrajectoryModel();
     }
 
     private void createMoonModel() {
-        final float MOONMODEL_RADIUS = Constants.MOON_RADIUS * SCENE_SCALE;
-        ModelBuilder modelBuilder = new ModelBuilder();
-        moonModel = modelBuilder.createSphere(2* MOONMODEL_RADIUS, 2* MOONMODEL_RADIUS, 2* MOONMODEL_RADIUS,
-                120, 120, new Material(ColorAttribute.createDiffuse(Color.GRAY)),
-                Usage.Position | Usage.Normal);
-        moonInstance = new ModelInstance(moonModel);
+//        final float MOONMODEL_RADIUS = Constants.MOON_RADIUS * SCENE_SCALE;
+//        ModelBuilder modelBuilder = new ModelBuilder();
+//        moonModel = modelBuilder.createSphere(2* MOONMODEL_RADIUS, 2* MOONMODEL_RADIUS, 2* MOONMODEL_RADIUS,
+//                32, 16, new Material(ColorAttribute.createDiffuse(Color.GRAY)),
+//                Usage.Position | Usage.Normal);
+//        moonInstance = new ModelInstance(moonModel);
+        assets.load(ProjectFiles.MOON_SOURCE_FILE, Model.class);
+        loading = true;
     }
 
     private void createShipModel() {
-        assets = new AssetManager();
         assets.load(ProjectFiles.SHIP_SOURCE_FILE, Model.class);
         loading = true;
     }
@@ -208,10 +206,13 @@ public class MoonScene implements ApplicationListener {
     private void doneLoading() {
         final float SHIP_WIDTH_IN_METERS = 2f;
         shipModel = assets.get(ProjectFiles.SHIP_SOURCE_FILE, Model.class);
-        shipModel.materials.add(new Material(ColorAttribute.createDiffuse(Color.GRAY)));
         shipInstance = new ModelInstance(shipModel);
-//        scaleModelInstance(shipInstance, SHIP_WIDTH_IN_METERS * SCENE_SCALE);
-        shipInstance.transform.scl(0.000003f);
+        scaleModelInstance(shipInstance, SHIP_WIDTH_IN_METERS * SCENE_SCALE);
+
+        moonModel = assets.get(ProjectFiles.MOON_SOURCE_FILE, Model.class);
+        moonInstance = new ModelInstance(moonModel);
+        moonInstance.transform.scl(2f);
+
         loading = false;
         initializeScene();
     }
@@ -219,7 +220,8 @@ public class MoonScene implements ApplicationListener {
     private void scaleModelInstance(ModelInstance modelInstance, float newWidth) {
         BoundingBox bb = new BoundingBox();
         modelInstance.calculateBoundingBox(bb);
-        modelInstance.transform.scl(newWidth * bb.getWidth());
+        System.out.println("Model width: " + bb.getWidth());
+        modelInstance.transform.scl(newWidth/bb.getWidth()); // computes scale, applying the scale the width will change to newWidth
     }
 
     private void createTrajectoryModel() {
@@ -284,6 +286,13 @@ public class MoonScene implements ApplicationListener {
         // move moon and trajectory opposite way than ship is supposed to move
         trajectoryInstance.transform.translate(-delta.x, -delta.y, -delta.z);
         moonInstance.transform.translate(-delta.x, -delta.y, -delta.z);
+
+//        System.out.println("Ship r=" + Math.sqrt(newShipPosition.x*newShipPosition.x + newShipPosition.y*newShipPosition.y));
+        trajectoryInstance.transform.getTranslation(delta);
+        System.out.println("Trajectory center=" + delta);
+        moonInstance.transform.getTranslation(delta);
+        System.out.println("Moon center=" + delta);
+        System.out.println("Moon distance from 0,0:" + Math.sqrt(delta.x*delta.x + delta.y*delta.y));
 
         accountForMoonCurvature(prevShipPosition, newShipPosition);
     }

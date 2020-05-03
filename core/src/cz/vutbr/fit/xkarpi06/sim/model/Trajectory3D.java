@@ -69,8 +69,9 @@ public class Trajectory3D {
 //        }
 
         this.controlVertices = controlVertices;
+        scale(this.controlVertices, SCALE);
 
-        createSmoothVertices(scale(this.controlVertices, SCALE), smoothFactor);
+        createSmoothVertices(this.controlVertices,smoothFactor);
         this.times = times;
         computeSpeed();
     }
@@ -143,12 +144,10 @@ public class Trajectory3D {
      * @param scale the scale
      * @return scales vertices
      */
-    private Vector3[] scale(Vector3[] input, float scale) {
-        Vector3[] output = new Vector3[input.length];
-        for (int i = 0; i < output.length; i++) {
-            output[i] = new Vector3(input[i]).scl(scale);
+    private void scale(Vector3[] input, float scale) {
+        for (int i = 0; i < input.length; i++) {
+            input[i].scl(scale);
         }
-        return output;
     }
 
     /**
@@ -429,7 +428,7 @@ public class Trajectory3D {
         ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
 
-        modelBuilder.part("skelet", getMesh(controlVertices), GL20.GL_LINES, new Material(ColorAttribute.createDiffuse(Color.GREEN)));
+//        modelBuilder.part("skelet", getMesh(controlVertices), GL20.GL_LINES, new Material(ColorAttribute.createDiffuse(Color.GREEN)));
 
         int lastStart = 0;
         for (int i = 1; i < modelVertices.length; i++) {

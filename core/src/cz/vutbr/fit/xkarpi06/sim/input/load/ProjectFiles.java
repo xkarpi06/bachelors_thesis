@@ -48,16 +48,10 @@ public class ProjectFiles {
     public static final String SRC_VTH = "velocity_horizontal.txt";
 
     /** Name of source file for 3D model of spacecraft */
-    public static final String SHIP_SOURCE_FILE = "Beresheet_centered_mass_5K.g3dj";
+    public static final String SHIP_SOURCE_FILE = "Beresheet_centered_mass_5K_v2.g3dj";
 
-//    /** Name of source file for ParsedA */
-//    public static final String SRC_LINE_COMPONENTS = "line_components.txt";
-//
-//    /** Name of source file for ParsedLineComponent */
-//    public static final String SRC_LINE_INTERVAL_SCHEMES = "line_interval_schemes.txt";
-//
-//    /** Name of source file for ParsedTrips */
-//    public static final String SRC_TRIPS = "trips.txt";
+    /** Name of source file for 3D model of moon */
+    public static final String MOON_SOURCE_FILE = "Moon5K_v6.g3dj";
 
     public static final Set<String> SRC_FILES = new HashSet<>(Arrays.asList(
             SRC_TIMES,
