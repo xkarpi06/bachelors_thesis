@@ -26,6 +26,9 @@ public class ProjectFiles {
     /** File for saving logs */
     public static final String LOGS_FILE = "log.txt";
 
+    /** File for importing skin */
+    public static final String SKIN_PATH = "uiskin.json";
+
     /** Name of source file for trajectory times */
     public static final String SRC_TIMES = "timeline.txt";
 
