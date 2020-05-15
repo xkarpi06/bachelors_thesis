@@ -77,7 +77,6 @@ public class MainMenuScreen implements Screen {
     private void setFileChooser() {
         if (game.fileChooser == null) {
             FileChooser.setDefaultPrefsName(MainMenuScreen.class.getPackage().toString() + ".filechooser");
-            System.out.println(MainMenuScreen.class.getPackage().toString());
             game.fileChooser = new FileChooser(FileChooser.Mode.OPEN);
             game.fileChooser.setSelectionMode(FileChooser.SelectionMode.DIRECTORIES);
             game.fileChooser.setSize(stage.getWidth()*0.9f, stage.getHeight()*0.7f);
