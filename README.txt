@@ -26,8 +26,9 @@ provide additional trajectory information to create broad picture for users.
 ********************************************************************************
 
 Run:
-	./run-linux
-	run-win.exe
+	linux:		run script in root directory	"linux-run"
+	windows:	run file in root directorz		"win-run"
+				or acces .exe directly at 		/bin/MoonLanding.exe
 
 Build: 
 	in root directory run: ./gradlew build
@@ -54,10 +55,10 @@ timeline.txt - times corresponding to coordinates, including start and finish
     format: value
 
 trajectory_polar.txt - polar coordinates of trajectory in one plane
-    format: r,theta		(decimal dot, do not use comma)
+    format: r,theta,phi		(decimal dot, phi=0 for 2D trajectory in x-y plane)
 
 trajectory_cartesian.txt - cartesian coordinates of trajectory in one plane
-    format: x,y			(decimal dot, do not use comma)
+    format: x,y,z			(decimal dot, z=0 for 2D trajectory in x-y plane)
 
 Optional files:
 

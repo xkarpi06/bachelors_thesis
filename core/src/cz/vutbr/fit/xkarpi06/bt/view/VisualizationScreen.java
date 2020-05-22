@@ -137,15 +137,20 @@ public class VisualizationScreen implements Screen {
     public void pause () {
     }
 
+    /**
+     * Init render variables: modelBatch and environment
+     */
     private void initializeRenderVariables() {
         modelBatch = new ModelBatch();
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
 
         environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, 1f, -0.5f, -0.5f)); // slightly from above
-//        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f)); // orig
     }
 
+    /**
+     * Init perspective camera for 3D scene
+     */
     private void initializeCamera() {
         cam = new PerspectiveCamera();
 //        cam = new PerspectiveCamera(67f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -166,6 +171,9 @@ public class VisualizationScreen implements Screen {
         cam.update();
     }
 
+    /**
+     * Init controllers of this screen: userInterface, camController, myInputProcessor
+     */
     private void initializeControllers() {
         userInterface = new UserInterface(sim, this);
         camController = new CameraInputController(cam);
@@ -185,12 +193,6 @@ public class VisualizationScreen implements Screen {
     }
 
     private void createMoonInstance() {
-//        final float MOONMODEL_RADIUS = Constants.MOON_RADIUS * SCENE_SCALE;
-//        ModelBuilder modelBuilder = new ModelBuilder();
-//        moonModel = modelBuilder.createSphere(2* MOONMODEL_RADIUS, 2* MOONMODEL_RADIUS, 2* MOONMODEL_RADIUS,
-//                32, 16, new Material(ColorAttribute.createDiffuse(Color.GRAY)),
-//                Usage.Position | Usage.Normal);
-//        moonInstance = new ModelInstance(moonModel);
         Model moonModel = assets.get(ProjectFiles.MOON_SOURCE_FILE, Model.class);
         moonInstance = new ModelInstance(moonModel);
         moonInstance.transform.scl(2f); // TODO
@@ -262,14 +264,12 @@ public class VisualizationScreen implements Screen {
         trajectoryInstance.transform.translate(-delta.x, -delta.y, -delta.z);
         moonInstance.transform.translate(-delta.x, -delta.y, -delta.z);
 
-//        System.out.println("Ship r=" + Math.sqrt(newShipPosition.x*newShipPosition.x + newShipPosition.y*newShipPosition.y));
-//        System.out.println("Moon distance from 0,0:" + Math.sqrt(delta.x*delta.x + delta.y*delta.y));
-
         accountForMoonCurvature(prevShipPosition, newShipPosition);
     }
 
     /**
      * Rotates ship so that bottom is directed to Moon's surface if no other rotations are applied
+     * Only does so for x-y plane
      * @param prev ship old position
      * @param newp ship new position
      */
@@ -278,9 +278,6 @@ public class VisualizationScreen implements Screen {
         float thetaOld = (float) Math.atan2(prev.y, prev.x);
         float thetaNew = (float) Math.atan2(newp.y, newp.x);
         shipInstance.transform.rotateRad(Vector3.Z, thetaNew - thetaOld);
-
-//        float phiOld = (float) Math.asin(prev.z / Math.sqrt(prev.x*prev.x + prev.y*prev.y + prev.z*prev.z));
-//        float phiNew = (float) Math.asin(newp.z / Math.sqrt(newp.x*newp.x + newp.y*newp.y + newp.z*newp.z));
     }
 
     /**

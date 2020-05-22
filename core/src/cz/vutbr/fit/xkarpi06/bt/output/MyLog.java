@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 /**
- * Manages creating log files and setting Logger.
+ * Manages creating log files and setting Logger for debugging purposes
  * @author xkarpi06
  * created: 19-4-2020
  */
@@ -21,7 +21,6 @@ public class MyLog {
 
     /** Level determines what to log */
     private static final Level LOG_LEVEL = Level.ALL;
-
 
     private static FileHandler fileHandler;
 

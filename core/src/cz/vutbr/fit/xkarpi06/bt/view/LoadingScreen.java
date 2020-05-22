@@ -73,7 +73,6 @@ public class LoadingScreen implements Screen {
                 if (game.trajectory == null || game.trajectoryDirWasChanged) {
                     game.setTrajectory(Trajectory3DLoader.load(game.trajectoryDir));
                     game.trajectoryDirWasChanged = false;
-//                    game.trajectory = Trajectory3DCreator.create();
                 }
                 if (game.trajectory == null) {  // failed to load trajectory
                     game.errMsg = "Could not load trajectory.";

@@ -23,7 +23,7 @@ import cz.vutbr.fit.xkarpi06.bt.input.load.ProjectFiles;
 import java.io.File;
 
 /**
- * Main menu view
+ * Main menu view screen
  * @author xkarpi06
  * created: 03-05-2020
  * updated:

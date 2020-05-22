@@ -12,12 +12,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Loads data from input directory. Each city must have its own subdirectory.
+ * Loads data from input directory. Correctly named files must be present
  * @author xkarpi06
- * @version 1.0
- * @since 1.0
- * created: 22-3-2020, xkarpi06
- * updated: 29-3-2020, xkarpi06
+ * created: 19-4-2020, xkarpi06
  */
 public class Trajectory3DLoader {
 

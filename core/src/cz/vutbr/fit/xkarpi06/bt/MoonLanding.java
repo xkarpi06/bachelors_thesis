@@ -13,10 +13,14 @@ import cz.vutbr.fit.xkarpi06.bt.view.MainMenuScreen;
  * Main application entry
  *
  * Developed using libGDX game engine under the Apache 2.0 licence
+ * and VisUi user interface toolkit for libGDX under the Apache 2.0 licence.
  *
  * Apache License
  * Version 2.0, January 2004
  * http://www.apache.org/licenses/
+ *
+ * libGDX: https://libgdx.badlogicgames.com/index.html
+ * VisUi: https://github.com/kotcrab/vis-ui
  *
  * @author xkarpi06
  * created: 03-05-2020
@@ -24,14 +28,20 @@ import cz.vutbr.fit.xkarpi06.bt.view.MainMenuScreen;
  */
 public class MoonLanding extends Game {
 
-//    public Skin skin;
-//    public BitmapFont font;
+    /** FileChooser instance so it is not created again for every main menu entrance */
     public FileChooser fileChooser;
+
     public AssetManager assets;
     public Trajectory3D trajectory;
     public Simulation sim;
+
+    /** Directory with trajectory data */
     public String trajectoryDir;
+
+    /** True if trajectoryDir is changed in main menu */
     public boolean trajectoryDirWasChanged = false;
+
+    /** err msg to display in main menu */
     public String errMsg;
 
     /**
@@ -40,8 +50,6 @@ public class MoonLanding extends Game {
     @Override
     public void create() {
         VisUI.load();
-//        skin = new Skin(Gdx.files.internal(ProjectFiles.SKIN_PATH));
-//        font = skin.getFont(ProjectFiles.FONT_PATH);
         assets = new AssetManager();
         sim = new Simulation();
         this.setScreen(new MainMenuScreen(this));
@@ -54,13 +62,15 @@ public class MoonLanding extends Game {
 
     @Override
     public void dispose() {
-//        font.dispose();
-//        skin.dispose();
         assets.dispose();
         if (trajectory != null) { trajectory.dispose(); }
         VisUI.dispose();
     }
 
+    /**
+     * Sets game trajectory object and also sets game.sim's trajectory
+     * @param t new trajectory
+     */
     public void setTrajectory(Trajectory3D t) {
         trajectory = t;
         sim.setTrajectory(trajectory);

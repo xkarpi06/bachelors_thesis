@@ -9,7 +9,6 @@ import cz.vutbr.fit.xkarpi06.bt.input.parse.strategy.TrajectoryParser;
  * Context for strategy design pattern
  * @author xkarpi06
  * created: 19-4-2020, xkarpi06
- * updated: 1-4-2020
  */
 public class StringParser {
 

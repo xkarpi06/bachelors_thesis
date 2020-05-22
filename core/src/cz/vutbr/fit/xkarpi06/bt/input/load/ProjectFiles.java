@@ -5,10 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Keeps track of location for neccesary files and directories
+ * Keeps track of location for necessary files and directories
  * @author xkarpi06
- * @version 1.0
- * @since 1.0
  * created: 19-4-2020, xkarpi06
  * updated:
  */
@@ -16,9 +14,6 @@ public class ProjectFiles {
 
     /** Current working directory */
     public static final String WORKING_DIRECTORY = System.getProperty("user.dir");
-
-    /** Directory containing input trajectory data */
-    public static final String DATA_DIRECTORY = WORKING_DIRECTORY.concat("/").concat("data");
 
     /** Directory for saving logs */
     public static final String LOGS_DIRECTORY = WORKING_DIRECTORY.concat("/").concat("log");

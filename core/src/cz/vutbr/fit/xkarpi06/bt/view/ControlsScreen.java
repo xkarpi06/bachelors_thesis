@@ -27,19 +27,10 @@ public class ControlsScreen implements Screen {
     /* disposables */
     private Stage stage;
 
-    private String[][] controls = new String[][] {
-            {"left arrow","step simulation backwards"},
-            {"right arrow","step simulation forwards"},
-            {"space bar","pause/play simulation"},
-            {"r","change simulation flow backwards/forwards"},
-            {"left mouse","change camera angle"},
-            {"mouse scroll","zoom in/out"},
-    };
-
     public ControlsScreen(MoonLanding moonLanding) {
         game = moonLanding;
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 640, 480);
+        camera.setToOrtho(false, 960, 540);
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
@@ -54,18 +45,24 @@ public class ControlsScreen implements Screen {
 
         VisLabel controlHead = new VisLabel("Key:", Color.WHITE);
         VisLabel effectHead= new VisLabel("Effect:", Color.GRAY);
-//        controlHead.setFontScale(1.4f);
-//        effectHead.setFontScale(1.4f);
 
         table.add(controlHead);
         table.add(effectHead);
         table.row().padTop(25);
 
+        // list of controls
+        String[][] controls = new String[][] {
+                {"left arrow","step simulation backwards"},
+                {"right arrow","step simulation forwards"},
+                {"space bar","pause/play simulation"},
+                {"r","change simulation flow backwards/forwards"},
+                {"left mouse","change camera angle"},
+                {"mouse scroll","zoom in/out"},
+        };
+
         for (int i = 0; i < controls.length; i++) {
             VisLabel control = new VisLabel(controls[i][0], Color.WHITE);
             VisLabel effect = new VisLabel(controls[i][1], Color.GRAY);
-//            control.setFontScale(1.2f);
-//            effect.setFontScale(1.2f);
             table.add(control);
             table.add(effect);
             table.row();

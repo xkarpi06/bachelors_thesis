@@ -9,8 +9,6 @@ import java.time.Duration;
 /**
  * Represents spacecraft position on trajectory represented by value between 0 and 1
  * @author xkarpi06
- * @version 1.0
- * @since 1.0
  * created: 18-4-2020, xkarpi06
  * updated:
  */
@@ -39,8 +37,6 @@ public class Simulation {
     }
 
     public void setTrajectory(Trajectory3D trajectory) { this.trajectory = trajectory; }
-
-
 
     /**
      * Set current ship position, will update previous position

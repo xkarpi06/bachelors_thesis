@@ -6,13 +6,19 @@ import cz.vutbr.fit.xkarpi06.bt.model.Simulation;
 
 /**
  * Processes additional keyboard input
+ *
+ * If left or right arrow key is pressed, this boolean variable is changed and
+ * render() method in visualization screen will see, that this variable is true
+ * and tells the simulation to change its state (every render that it is pressed,
+ * until it is released and switched to false in this class again)
+ *
  * @author xkarpi06
  * created: 02-05-2020, xkarpi06
- * updated:
  */
 public class MyInputProcessor extends InputAdapter {
 
     private Simulation sim;
+
     public boolean leftArrowPressed = false;
     public boolean rightArrowPressed = false;
 
@@ -30,11 +36,9 @@ public class MyInputProcessor extends InputAdapter {
                     sim.run();
                 break;
             case Input.Keys.LEFT:
-//                sim.setShipPosition(sim.getPosition() - 0.001f);
                 leftArrowPressed = true;
                 break;
             case Input.Keys.RIGHT:
-//                sim.setShipPosition(sim.getPosition() + 0.001f);
                 rightArrowPressed = true;
                 break;
             case Input.Keys.R:

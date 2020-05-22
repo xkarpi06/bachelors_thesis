@@ -11,11 +11,11 @@ import com.badlogic.gdx.math.Vector3;
  */
 public class TrajectoryParser implements ParsingStrategy{
 
-    // format: r,theta
-    //     or: x,y
+    // format: r,theta,phi
+    //     or: x,y,z
 
     /** Amount of variables per line */
-    public static final int VARIABLE_COUNT = 2;
+    public static final int VARIABLE_COUNT = 3;
 
     /** Delimiter */
     public static final String DELIMITER = ",";
@@ -26,6 +26,9 @@ public class TrajectoryParser implements ParsingStrategy{
     /** Order in input file line */
     public static final int THETAorY_INDEX = 1;
 
+    /** Order in input file line */
+    public static final int PHIorZ_INDEX = 2;
+
     @Override
     public Vector3 parseLine(String line) {
         Vector3 result = null;
@@ -33,15 +36,17 @@ public class TrajectoryParser implements ParsingStrategy{
         if (variables.length == VARIABLE_COUNT) {
             float var1;
             float var2;
+            float var3;
             try {
                 var1 = Float.parseFloat(variables[RorX_INDEX]);
                 var2 = Float.parseFloat(variables[THETAorY_INDEX]);
+                var3 = Float.parseFloat(variables[PHIorZ_INDEX]);
             } catch (NumberFormatException ex) {
                 ex.printStackTrace();
                 return null;
             }
             if (var1 >= 0) {
-                result = new Vector3(var1, var2, 0);
+                result = new Vector3(var1, var2, var3);
             }
         }
         return result;

@@ -80,7 +80,11 @@ public class Trajectory3D {
     }
 
     /**
-     * static Creator
+     * Static creator, checks if vertices and times were passed
+     * @param controlVertices input vertices
+     * @param times input times
+     * @param smoothFactor smoothfactor
+     * @return Trajectory3D if success, null if some input is missing or invalid
      */
     public static Trajectory3D create(Vector3[] controlVertices, float[] times, int smoothFactor) {
         if (controlVertices == null || controlVertices.length < 2) {
@@ -144,33 +148,6 @@ public class Trajectory3D {
     }
 
     /**
-     * Since CatmulRomSpline ommits first and last points, one point is added in the begining
-     * and one at the end
-     * @param input input vertices
-     * @return array with 2 new vertices
-     */
-//    private Vector3[] extendEnds(Vector3[] input) {
-//        Vector3[] output = new Vector3[input.length + 2];
-//
-//        // first vertex
-//        Vector3 delta = new Vector3(input[1]).sub(input[0]);
-//        output[0] = new Vector3(input[0]).sub(delta);
-//
-//        // middle
-//        for (int i = 0; i < input.length; i++) {
-//            output[i+1] = input[i];
-//        }
-//
-//        // last vertex
-//        int lastI = input.length - 1;
-//        int lastO = output.length - 1;
-//        delta = new Vector3(input[lastI]).sub(input[lastI-1]);
-//        output[lastO] = new Vector3(input[lastI]).add(delta);
-//
-//        return output;
-//    }
-
-    /**
      * Computes speed at each section based on times,
      * knowing speed is necessary for computing ship position change
      */
@@ -183,6 +160,11 @@ public class Trajectory3D {
         }
     }
 
+    /**
+     * Checks list validity
+     * @param input the list
+     * @return true if input is not null and has at least 2 elements, false otherwise
+     */
     private boolean isValidHistory(float[] input) {
         return input != null && input.length >= 1;
     }
@@ -383,22 +365,6 @@ public class Trajectory3D {
         }
     }
 
-    /**
-     * Builds Mesh representing trajectory
-     * @return Mesh
-     */
-    public Mesh buildMesh() {
-        return getMesh(smoothVertices);
-    }
-
-    /**
-     * Builds Mesh representing raw unsmoothed trajectory
-     * @return Mesh
-     */
-    public Mesh buildMeshControl() {
-        return getMesh(controlVertices);
-    }
-
     private Mesh getMesh(Vector3[] points) {
         MeshBuilder meshBuilder = new MeshBuilder();
         meshBuilder.begin(Usage.Position | Usage.Normal, GL20.GL_LINES);
@@ -421,14 +387,11 @@ public class Trajectory3D {
         ModelBuilder modelBuilder = new ModelBuilder();
         modelBuilder.begin();
 
-//        modelBuilder.part("skelet", getMesh(controlVertices), GL20.GL_LINES, new Material(ColorAttribute.createDiffuse(Color.GREEN)));
-
         int lastStart = 0;
         for (int i = 1; i < modelVertices.length; i++) {
 
             // Max vertices in Mesh can be Short.MAX_VALUE (32672). We are creating lines, so almost every vertex is counted twice.
             if (i % (Short.MAX_VALUE/2) == 0 || i == modelVertices.length - 1) {
-//                System.out.printf("Building mesh for vertices %d-%d\n", lastStart, i);
                 modelBuilder.part("catmull_" + lastStart, getMesh(Arrays.copyOfRange(modelVertices, lastStart, i)), GL20.GL_LINES, modelMaterial);
                 lastStart = i;
             }
