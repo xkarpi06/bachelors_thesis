@@ -1,4 +1,6 @@
+test.zip
 /bin
+/CD
 linux-run
 win-run
 **/logs/*

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.MeshBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Bezier;
+import com.badlogic.gdx.math.CatmullRomSpline;
 import com.badlogic.gdx.math.Vector3;
 
 import cz.vutbr.fit.xkarpi06.bt.output.MyLog;
@@ -107,6 +108,8 @@ public class Trajectory3D {
         smoothVertices = new Vector3[k];
 
         Bezier<Vector3> bezier = null;
+//        CatmullRomSpline<Vector3> catmull = new CatmullRomSpline<>(extendEnds(input), true);
+
         for(int i = 0; i < input.length; i++) {
             // create new Bezier spline every four vertices
             if (i%3 == 0 || i == input.length - 1) {
@@ -125,7 +128,9 @@ public class Trajectory3D {
             }
 
             for (int j = 0; j <= smoothness; j++) {
+//            for (int i = 0; i < k; i++) {
                 int nextSmooth = i*(smoothness + 1) + j;
+//                smoothVertices[i] = new Vector3();
                 smoothVertices[nextSmooth] = new Vector3();
                 float offsetOfNext = ((i%3)*(smoothness + 1) + j)/(float)((bezier.points.size - 1)*(smoothness + 1));
                 bezier.valueAt(smoothVertices[nextSmooth], offsetOfNext);
@@ -133,6 +138,33 @@ public class Trajectory3D {
             }
         }
 
+    }
+
+    /**
+     * Since CatmulRomSpline ommits first and last points, one point is added in the begining
+     * and one at the end
+     * @param input input vertices
+     * @return array with 2 new vertices
+     */
+    private Vector3[] extendEnds(Vector3[] input) {
+        Vector3[] output = new Vector3[input.length + 2];
+
+        // first vertex
+        Vector3 delta = new Vector3(input[1]).sub(input[0]);
+        output[0] = new Vector3(input[0]).sub(delta);
+
+        // middle
+        for (int i = 0; i < input.length; i++) {
+            output[i+1] = input[i];
+        }
+
+        // last vertex
+        int lastI = input.length - 1;
+        int lastO = output.length - 1;
+        delta = new Vector3(input[lastI]).sub(input[lastI-1]);
+        output[lastO] = new Vector3(input[lastI]).add(delta);
+
+        return output;
     }
 
     /**

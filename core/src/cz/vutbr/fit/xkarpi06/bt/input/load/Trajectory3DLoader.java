@@ -58,7 +58,7 @@ public class Trajectory3DLoader {
 
         Vector3[] controlVertices = loadVertices(sourceFiles);
         float[] times = loadTimes(sourceFiles);
-        int smoothFactor = 3;
+        int smoothFactor = 6;
         Trajectory3D trajectory = Trajectory3D.create(controlVertices, times, smoothFactor);
 
         if (trajectory != null) {

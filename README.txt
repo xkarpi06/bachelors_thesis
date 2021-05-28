@@ -26,9 +26,9 @@ provide additional trajectory information to create broad picture for users.
 ********************************************************************************
 
 Run:
-	linux:		run script in root directory	"linux-run"
-	windows:	run file in root directorz		"win-run"
-				or acces .exe directly at 		/bin/MoonLanding.exe
+	linux:		run script in /bin directory	"linux-run.sh"
+				or run in this directory		"gradlew run"
+	windows:	open file in /bin directory		"MoonLanding.exe"
 
 Build: 
 	in root directory run: ./gradlew build
